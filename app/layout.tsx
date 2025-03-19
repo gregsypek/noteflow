@@ -1,22 +1,27 @@
-import { Geist, Geist_Mono } from "next/font/google";
 import type { Metadata } from "next";
+import localFont from "next/font/local";
+
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+const inter = localFont({
+  src: "./fonts/InterVF.ttf",
+  variable: "--font-inter",
+  weight: "100 200 300 400 500 700 800 900",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const SquadaOne = localFont({
+  src: "./fonts/SquadaOne.ttf",
+  variable: "--font-squada",
+  weight: "400",
 });
 
 export const metadata: Metadata = {
   title: "NoteFlow",
   description: "Build perfect notes",
+  icons: {
+    icon: "/images/site-logo.svg",
+  },
 };
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -24,9 +29,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className={`${inter.className} ${SquadaOne.variable} antialiased`}>
         {children}
       </body>
     </html>
