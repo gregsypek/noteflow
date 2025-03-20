@@ -17,7 +17,8 @@ const SquadaOne = localFont({
 
 export const metadata: Metadata = {
   title: "NoteFlow",
-  description: "Build perfect notes",
+  description:
+    "Create, organize, and perfect your notes effortlessly with NoteFlow – your ultimate tool for streamlined note-taking and productivity.",
   icons: {
     icon: "/images/site-logo.svg",
   },
