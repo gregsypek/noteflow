@@ -1,3 +1,4 @@
+import { auth } from "@/auth";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -7,7 +8,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-export default function Home() {
+const Home = async () => {
+  const session = await auth();
+  console.log("🚀 ~ Home ~ session:", session);
   return (
     <>
       <div className="text-3xl text-red-500"> Welcome to my application</div>
@@ -24,4 +27,6 @@ export default function Home() {
       </DropdownMenu>
     </>
   );
-}
+};
+
+export default Home;
