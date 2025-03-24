@@ -38,6 +38,7 @@ const AuthForm = <T extends FieldValues>({
   formType,
   onSubmit,
 }: AuthFormProps<T>) => {
+  console.log("🚀 ~ onSubmit:", onSubmit);
   // `z.infer<typeof schema>` to utilita TypeScriptowa z biblioteki Zod, która służy do wyodrębniania (inferencji) typu TypeScript z obiektu schematu walidacyjnego Zod.
 
   // PRZYKŁAD
@@ -69,8 +70,6 @@ const AuthForm = <T extends FieldValues>({
         onSubmit={form.handleSubmit(handleSubmit)}
         className="mt-10 space-y-6"
       >
-        {buttonText}
-
         {Object.keys(defaultValues).map((field) => (
           <FormField
             key={field}
@@ -101,7 +100,11 @@ const AuthForm = <T extends FieldValues>({
           disabled={form.formState.isSubmitting}
           className="primary-gradient paragraph-medium min-h-12 w-full rounded-2 px-4 py-3 font-inter !text-light-900"
         >
-          Submit
+          {form.formState.isSubmitting
+            ? buttonText === "Sign In"
+              ? "Signin In..."
+              : "Signing Up..."
+            : buttonText}
         </Button>
 
         {formType === "SIGN_IN" ? (
