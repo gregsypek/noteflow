@@ -1,3 +1,4 @@
+import HomeFilter from "@/components/filters/HomeFilter";
 import LocalSearch from "@/components/search/LocalSearch";
 import { Button } from "@/components/ui/button";
 import ROUTES from "@/constants/routes";
@@ -22,10 +23,7 @@ const notes = [
     _id: "2",
     title: "How to learn JavaScript?",
     prompt: "I want to learn JavaScript, start from basics",
-    tags: [
-      { _id: "1", name: "React" },
-      { _id: "2", name: "JavaScript" },
-    ],
+    tags: [{ _id: "1", name: "JavaScript" }],
     author: { _id: "1", name: "John Doe" },
     upvotes: 10,
     answers: 5,
@@ -45,10 +43,18 @@ interface SearchParams {
 // In Next.js 13+, searchParams is a Promise because it supports both server-side rendering (SSR) and static generation, where the data might need to be fetched or resolved asynchronously.
 
 const Home = async ({ searchParams }: SearchParams) => {
-  const { query = "" } = await searchParams;
-  const filteredNotes = notes.filter((note) =>
-    note.title.toLowerCase().includes(query?.toLocaleLowerCase())
-  );
+  const { query = "", filter = "" } = await searchParams;
+
+  const filteredNotes = notes.filter((note) => {
+    const matchesQuery = note.title
+      .toLowerCase()
+      .includes(query?.toLocaleLowerCase());
+
+    const matchesFilter = filter
+      ? note.tags[0].name.toLowerCase() === filter.toLowerCase()
+      : true;
+    return matchesQuery && matchesFilter;
+  });
 
   return (
     <>
@@ -69,6 +75,8 @@ const Home = async ({ searchParams }: SearchParams) => {
           otherClasses="flex-1"
         />
       </section>
+
+      <HomeFilter />
       <div className="mt-10 flex w-full flex-col gap-6">
         {filteredNotes.map((note) => (
           <h1 key={note._id}>{note.title}</h1>
