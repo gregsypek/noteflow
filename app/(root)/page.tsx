@@ -1,8 +1,10 @@
+import Link from "next/link";
+
+import QuestionCard from "@/components/cards/QuestionCard";
 import HomeFilter from "@/components/filters/HomeFilter";
 import LocalSearch from "@/components/search/LocalSearch";
 import { Button } from "@/components/ui/button";
 import ROUTES from "@/constants/routes";
-import Link from "next/link";
 
 const notes = [
   {
@@ -13,22 +15,30 @@ const notes = [
       { _id: "1", name: "React" },
       { _id: "2", name: "JavaScript" },
     ],
-    author: { _id: "1", name: "John Doe" },
+    author: {
+      _id: "1",
+      name: "John Doe",
+      image: "/images/avatar.png",
+    },
     upvotes: 10,
     answers: 5,
     views: 100,
-    createdAt: new Date(),
+    createdAt: new Date("2022-03-11"),
   },
   {
     _id: "2",
     title: "How to learn JavaScript?",
     prompt: "I want to learn JavaScript, start from basics",
     tags: [{ _id: "1", name: "JavaScript" }],
-    author: { _id: "1", name: "John Doe" },
+    author: {
+      _id: "2",
+      name: "John Rambo",
+      image: "/images/avatar.png",
+    },
     upvotes: 10,
     answers: 5,
     views: 100,
-    createdAt: new Date(),
+    createdAt: new Date("2025-02-01"),
   },
 ];
 
@@ -60,10 +70,7 @@ const Home = async ({ searchParams }: SearchParams) => {
     <>
       <section className="flex w-full flex-col-reverse justify-between gap-4 sm:flex-row sm:items-center">
         <h1 className="h1-bold text-dark100_light900">All Notes</h1>
-        <Button
-          className="primary-gradient min-h-[46px] px-4 py-3 !text-light-900"
-          asChild
-        >
+        <Button className="primary-gradient  min-h-[46px] px-4 py-3" asChild>
           <Link href={ROUTES.ASK_QUESTION}>Make a Note</Link>
         </Button>
       </section>
@@ -79,7 +86,10 @@ const Home = async ({ searchParams }: SearchParams) => {
       <HomeFilter />
       <div className="mt-10 flex w-full flex-col gap-6">
         {filteredNotes.map((note) => (
-          <h1 key={note._id}>{note.title}</h1>
+          // <h1 key={note._id}>{note.title}</h1>
+          <h1 key={note._id}>
+            <QuestionCard key={note._id} question={note} />
+          </h1>
         ))}
       </div>
     </>
