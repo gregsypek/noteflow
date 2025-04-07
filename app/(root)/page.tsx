@@ -5,6 +5,7 @@ import HomeFilter from "@/components/filters/HomeFilter";
 import LocalSearch from "@/components/search/LocalSearch";
 import { Button } from "@/components/ui/button";
 import ROUTES from "@/constants/routes";
+import handleError from "@/lib/handlers/error";
 
 const notes = [
   {
@@ -42,6 +43,14 @@ const notes = [
   },
 ];
 
+const test = async () => {
+  try {
+    throw new Error("Test error");
+  } catch (error) {
+    return handleError(error);
+  }
+};
+
 interface SearchParams {
   searchParams: Promise<{ [key: string]: string }>;
 }
@@ -54,6 +63,9 @@ interface SearchParams {
 
 const Home = async ({ searchParams }: SearchParams) => {
   const { query = "", filter = "" } = await searchParams;
+
+  const result = await test();
+  console.log("🚀 ~ Home ~ result:", result);
 
   const filteredNotes = notes.filter((note) => {
     const matchesQuery = note.title
