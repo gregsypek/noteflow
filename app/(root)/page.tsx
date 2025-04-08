@@ -64,8 +64,8 @@ interface SearchParams {
 const Home = async ({ searchParams }: SearchParams) => {
   const { query = "", filter = "" } = await searchParams;
 
-  const result = await test();
-  console.log("🚀 ~ Home ~ result:", result);
+  // const result = await test();
+  // console.log("🚀 ~ Home ~ result:", result);
 
   const filteredNotes = notes.filter((note) => {
     const matchesQuery = note.title
