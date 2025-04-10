@@ -6,6 +6,7 @@ import LocalSearch from "@/components/search/LocalSearch";
 import { Button } from "@/components/ui/button";
 import ROUTES from "@/constants/routes";
 import handleError from "@/lib/handlers/error";
+import { api } from "@/lib/api";
 
 const notes = [
   {
@@ -45,7 +46,8 @@ const notes = [
 
 const test = async () => {
   try {
-    throw new Error("Test error");
+    // throw new Error("Test error");
+    return await api.users.getAll();
   } catch (error) {
     return handleError(error);
   }
@@ -64,8 +66,8 @@ interface SearchParams {
 const Home = async ({ searchParams }: SearchParams) => {
   const { query = "", filter = "" } = await searchParams;
 
-  // const result = await test();
-  // console.log("🚀 ~ Home ~ result:", result);
+  const result = await test();
+  console.log("🚀 ~ Home ~ result:", result);
 
   const filteredNotes = notes.filter((note) => {
     const matchesQuery = note.title
