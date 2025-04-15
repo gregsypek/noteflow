@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import ROUTES from "@/constants/routes";
 import handleError from "@/lib/handlers/error";
 import { api } from "@/lib/api";
+import { auth } from "@/auth";
 
 const notes = [
   {
@@ -66,7 +67,8 @@ interface SearchParams {
 const Home = async ({ searchParams }: SearchParams) => {
   const { query = "", filter = "" } = await searchParams;
 
-  const result = await test();
+  // const result = await test();
+  const result = await auth();
   console.log("🚀 ~ Home ~ result:", result);
 
   const filteredNotes = notes.filter((note) => {
