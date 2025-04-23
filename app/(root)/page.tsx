@@ -45,14 +45,14 @@ const notes = [
   },
 ];
 
-const test = async () => {
-  try {
-    // throw new Error("Test error");
-    return await api.users.getAll();
-  } catch (error) {
-    return handleError(error);
-  }
-};
+// const test = async () => {
+//   try {
+//     // throw new Error("Test error");
+//     return await api.users.getAll();
+//   } catch (error) {
+//     return handleError(error);
+//   }
+// };
 
 interface SearchParams {
   searchParams: Promise<{ [key: string]: string }>;
@@ -66,7 +66,8 @@ interface SearchParams {
 
 const Home = async ({ searchParams }: SearchParams) => {
   const { query = "", filter = "" } = await searchParams;
-
+  const session = await auth();
+  console.log("🚀 ~ Home ~ session:", session)
   // const result = await test();
   const result = await auth();
   console.log("🚀 ~ Home ~ result:", result);

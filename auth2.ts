@@ -24,71 +24,75 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       async authorize(credentials) {
         const validatedFields = SignInSchema.safeParse(credentials);
 
-        if (validatedFields.success) {
+        if (!validatedFields.success) return null;
+
         const { email, password } = validatedFields.data;
+
         // Pobierz konto na podstawie adresu email
-          const { data: existingAccount } = (await api.accounts.getByProvider(
-            email
-          )) as ActionResponse<IAccountDoc>;
+        const { data: existingAccount } = (await api.accounts.getByProvider(
+          email
+        )) as ActionResponse<IAccountDoc>;
 
-          if (!existingAccount) return null;
+        if (!existingAccount) return null;
+
         // Pobierz dane użytkownika powiązanego z kontem
-          const { data: existingUser } = (await api.users.getById(
-            existingAccount.userId.toString()
-          )) as ActionResponse<IUserDoc>;
+        const { data: existingUser } = (await api.users.getById(
+          existingAccount.userId.toString()
+        )) as ActionResponse<IUserDoc>;
 
-          if (!existingUser) return null;
+        if (!existingUser) return null;
+
         // Weryfikacja hasła
-          const isValidPassword = await bcrypt.compare(
-            password,
-            existingAccount.password!
-          );
+        const isValidPassword = await bcrypt.compare(
+          password,
+          existingAccount.password!
+        );
 
-          if (isValidPassword) {
-            return {
-              id: existingUser.id,
-              name: existingUser.name,
-              email: existingUser.email,
-              image: existingUser.image,
-            };
-          }
-        }
-        return null;
+        if (!isValidPassword) return null;
+
+        return {
+          id: existingUser.id,
+          name: existingUser.name,
+          email: existingUser.email,
+          image: existingUser.image,
+        };
       },
     }),
   ],
+
   // Callbacks definiują niestandardowe zachowanie podczas uwierzytelniania
   callbacks: {
     /**
      * Modyfikuje obiekt sesji, dodając ID użytkownika z tokenu JWT.
      * @param params - Obiekt zawierający sesję i token.
      * @returns Zmodyfikowany obiekt sesji.
-     */async session({ session, token }) {
+     */
+    async session({ session, token }) {
       session.user.id = token.sub as string;
       return session;
     },
-     /**
+
+    /**
      * Wzbogaca token JWT o dane użytkownika, np. ID z bazy danych.
      * @param params - Obiekt zawierający token i dane konta.
      * @returns Zmodyfikowany token JWT.
      */
     async jwt({ token, account }) {
-       if (account) {
-              // Pobierz konto na podstawie providera lub emaila (dla poświadczeń)
+      if (!account) return token;
 
-        const { data: existingAccount, success } =
-          (await api.accounts.getByProvider(
-            account.type === "credentials"
-              ? token.email!
-              : account.providerAccountId
-          )) as ActionResponse<IAccountDoc>;
+      // Pobierz konto na podstawie providera lub emaila (dla poświadczeń)
+      const { data: existingAccount, success } =
+        (await api.accounts.getByProvider(
+          account.type === "credentials"
+            ? token.email!
+            : account.providerAccountId
+        )) as ActionResponse<IAccountDoc>;
 
-        if (!success || !existingAccount) return token;
+      if (!success || !existingAccount) return token;
+
       // Ustaw ID użytkownika w polu 'sub' tokenu
-        const userId = existingAccount.userId;
-
-        if (userId) token.sub = userId.toString();
-      }
+      const userId = existingAccount.userId;
+      if (userId) token.sub = userId.toString();
 
       return token;
     },
@@ -97,10 +101,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
      * Obsługuje logowanie za pomocą OAuth lub poświadczeń.
      * @param params - Obiekt zawierający dane użytkownika, profil i konto.
      * @returns True, jeśli logowanie się powiodło, false w przeciwnym razie.
-     */    async signIn({ user, profile, account }) {
+     */
+    async signIn({ user, profile, account }) {
       // Logowanie za pomocą poświadczeń jest obsługiwane w authorize
       if (account?.type === "credentials") return true;
       if (!account || !user) return false;
+
       // Przygotuj dane użytkownika dla OAuth
       const userInfo = {
         name: user.name!,
@@ -111,6 +117,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             ? (profile?.login as string)
             : (user.name?.toLowerCase() as string),
       };
+
       // Wywołaj API do zarejestrowania/logowania użytkownika OAuth
       const { success } = (await api.auth.oAuthSignIn({
         user: userInfo,
@@ -118,9 +125,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         providerAccountId: account.providerAccountId,
       })) as ActionResponse;
 
-      if (!success) return false;
-
-      return true;
+      return success;
     },
   },
 });
