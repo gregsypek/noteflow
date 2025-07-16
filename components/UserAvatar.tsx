@@ -23,15 +23,15 @@ const UserAvatar = ({ id, name, imageUrl, className = "h-9 w-9" }: Props) => {
 
   return (
     <Link href={ROUTES.PROFILE(id)}>
-      <Avatar className={className}>
+      <Avatar className={`relative overflow-hidden ${className}`}>
         {imageUrl ? (
           <Image
             src={imageUrl}
             alt={name}
-            className="object-cover"
-            width={36}
-            height={36}
+            fill
+            className="rounded-full object-cover"
             quality={100}
+            unoptimized
           />
         ) : (
           <AvatarFallback className="primary-gradient font-squada font-bold tracking-wider text-white">
