@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
-
 import "./globals.css";
-import { ThemeProvider } from "next-themes";
-import { Toaster } from "@/components/ui/toaster";
 import { SessionProvider } from "next-auth/react";
+import { ThemeProvider } from "next-themes";
+
 import { auth } from "@/auth";
+import { Toaster } from "@/components/ui/toaster";
 
 const inter = localFont({
   src: "./fonts/InterVF.ttf",
@@ -29,10 +29,12 @@ export const metadata: Metadata = {
 };
 const RootLayout = async ({
   children,
+  // NOTE: why readonly?
 }: Readonly<{
   children: React.ReactNode;
 }>) => {
   const session = await auth();
+  console.log("🚀 ~ session:", session);
   return (
     <html lang="en" suppressHydrationWarning>
       <head>

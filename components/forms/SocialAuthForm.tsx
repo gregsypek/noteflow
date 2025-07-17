@@ -16,8 +16,10 @@ const SocialAuthForm = () => {
   const handleSignIn = async (provider: "github" | "google") => {
     try {
       await signIn(provider, {
-        callbackUrl: ROUTES.HOME,
-        redirect: false,
+        // callbackUrl: ROUTES.HOME,
+        redirectTo: ROUTES.HOME,
+
+        // redirect: false,
       });
       // throw new Error("not implem");
     } catch (error) {
