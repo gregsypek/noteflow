@@ -44,6 +44,17 @@ const handleError = (error: unknown, responseType: ResponseType = "server") => {
       error.flatten().fieldErrors as Record<string, string[]>
     );
 
+    // NOTE: ZodError.flatten() → Zod Docs – ZodError
+    // Bezpośrednio:
+    // .flatten() returns an object with two properties:
+    // formErrors: errors not specific to any input.
+    // fieldErrors: a map from field names to error messages.
+
+    //  Co zwr≥óci ZodError.flatten   {
+    //   formErrors: string[]; // ogólne błędy niezwiązane z polami
+    //   fieldErrors: Record<string, string[]>; // błędy przypisane do konkretnych pól
+    // }
+
     logger.error({ err: error }, `ValidationError: ${validationError.message}`);
     return formatResponse(
       responseType,

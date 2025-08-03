@@ -4,15 +4,15 @@ import mongoose from "mongoose";
 
 import Question from "@/database/question.model";
 import TagQuestion from "@/database/tag-question.model";
+import Tag from "@/database/tag.modeL";
 
 import action from "../handlers/action";
 import handleError from "../handlers/error";
 import { AskQuestionSchema } from "../validations";
-import Tag from "@/database/tag.modeL";
 
 export async function createQuestion(
   params: CreateQuestionParams
-): Promise<ActionResponse> {
+): Promise<ActionResponse<Question>> {
   const validationResult = await action({
     params,
     schema: AskQuestionSchema,

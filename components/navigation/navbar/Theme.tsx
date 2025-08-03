@@ -1,9 +1,9 @@
 "use client";
+import Image from "next/image";
 import { useTheme } from "next-themes";
 import React from "react";
 
 import { Button } from "@/components/ui/button";
-import Image from "next/image";
 
 const Theme = () => {
   const { theme, setTheme } = useTheme();

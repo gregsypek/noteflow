@@ -1,6 +1,8 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   DefaultValues,
   FieldValues,
@@ -20,10 +22,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import Link from "next/link";
 import ROUTES from "@/constants/routes";
 import { toast } from "@/hooks/use-toast";
-import { useRouter } from "next/navigation";
 
 interface AuthFormProps<T extends FieldValues> {
   schema: ZodType<T>;
@@ -31,6 +31,7 @@ interface AuthFormProps<T extends FieldValues> {
   onSubmit: (data: T) => Promise<ActionResponse>;
   formType: "SIGN_IN" | "SIGN_UP";
 }
+// NOTE: https://letsreact.org/react-hook-form-a-step-by-step-guide/  https://ui.shadcn.com/docs/components/form
 
 // FieldValues to typ z biblioteki React Hook Form, który reprezentuje pola formularza jako obiekt (kluczami są nazwy pól, wartościami są ich wartości).
 
@@ -97,7 +98,7 @@ const AuthForm = <T extends FieldValues>({
             name={field as Path<T>}
             render={({ field }) => (
               <FormItem className="flex w-full flex-col gap-2.5">
-                <FormLabel className="paragraph-medium text-dark400_light700">
+                <FormLabel className="paragraph-medium text-dark500_light700">
                   {field.name === "email"
                     ? "Email Address"
                     : field.name.charAt(0).toUpperCase() + field.name.slice(1)}

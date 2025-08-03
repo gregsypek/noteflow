@@ -1,10 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
-import { Button } from "../ui/button";
 import { useRouter, useSearchParams } from "next/navigation";
-import { cn } from "@/lib/utils";
+import React, { useState } from "react";
+
 import { formUrlQuery, removeKeysFromUrlQuery } from "@/lib/url";
+import { cn } from "@/lib/utils";
+
+import { Button } from "../ui/button";
 
 const filters = [
   { name: "React", value: "react" },
@@ -50,7 +52,7 @@ const HomeFilter = () => {
           className={cn(
             `body-medium rounded-lg px-6 py-3 capitalize shadow-none`,
             active === filter.value
-              ? "bg-primary-100 text-primary-500 hover:bg-primary-100 dark:bg-dark-400 dark:text-primary-500 dark:hover:bg-dark-400"
+              ? "bg-primary-100 text-primary-500 hover:bg-primary-100 dark:bg-dark-400 dark:text-primary-400 dark:hover:bg-dark-400"
               : "bg-light-800 dark:bg-dark-300 dark:text-light-500 dark:hover:bg-dark-300"
           )}
           key={filter.name}
