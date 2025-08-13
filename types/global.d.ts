@@ -53,3 +53,12 @@ type APIResponse<T = null> = NextResponse<SuccessResponse<T> | ErrorResponse>; /
 // NOTE: W SuccessResponse<T> dane (data) mogą być dowolnego typu (lub null), a w ErrorResponse są zawsze undefined.
 
 // NextResponse<SuccessResponse<T> | ErrorResponse> opakowuje tę unię, co oznacza, że odpowiedź HTTP będzie zawierała albo { success: true, data: T }, albo { success: false, data: undefined }.
+
+interface RouteParams {
+  params: Promise<Record<string, string>>;
+  searchParams: Promise<Record<string, string>>;
+}
+
+// difference between params and searchParams
+// params: /questions/:id
+// searchParams: /questions?tag=javascript
