@@ -1,4 +1,5 @@
 import mongoose, { Mongoose } from "mongoose";
+import "@/database";
 
 import logger from "./logger";
 

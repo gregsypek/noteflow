@@ -42,9 +42,7 @@ const QuestionForm = ({ question, isEdit = false }: Params) => {
   const router = useRouter();
   const editorRef = useRef<MDXEditorMethods>(null);
   // The typeof operator in TypeScript extracts the type of a value (a variable, constant, etc.). It’s distinct from JavaScript’s runtime typeof, which returns a string like "string" or "object"
-
   const [isPending, startTransition] = useTransition();
-
   // Why Use typeof Here?: Zod’s z.infer needs a type as its argument, not a value. Since AskQuestionSchema is a value (the schema object), typeof AskQuestionSchema converts it into its TypeScript type (e.g., the Zod schema’s type). This allows z.infer to operate on that type.
 
   const form = useForm<z.infer<typeof AskQuestionSchema>>({
@@ -111,27 +109,10 @@ const QuestionForm = ({ question, isEdit = false }: Params) => {
             title: "Success",
             description: "Question updated successfully",
           });
-          if (result.data) {
-            router.push(ROUTES.QUESTION(result.data._id));
-          } else {
-            toast({
-              title: `Error ${result.status}`,
-              description: result.error?.message || "Something went wrong",
-              variant: "destructive",
-            });
-          }
-          return;
-        }
-      }
-      const result = await createQuestion(data);
 
-      if (result.success) {
-        toast({
-          title: "Success",
-          description: "Question created successfully",
-        });
-        if (result.data) {
-          router.push(ROUTES.QUESTION(result.data._id));
+          if (result.data && typeof result.data._id === "string") {
+            router.push(ROUTES.QUESTION(result.data._id));
+          }
         } else {
           toast({
             title: `Error ${result.status}`,
@@ -139,6 +120,25 @@ const QuestionForm = ({ question, isEdit = false }: Params) => {
             variant: "destructive",
           });
         }
+
+        return;
+      }
+
+      const result = await createQuestion(data);
+
+      if (result.success) {
+        toast({
+          title: "Success",
+          description: "Question created successfully",
+        });
+
+        if (result.data) router.push(ROUTES.QUESTION(result.data._id));
+      } else {
+        toast({
+          title: `Error ${result.status}`,
+          description: result.error?.message || "Something went wrong",
+          variant: "destructive",
+        });
       }
     });
   };
@@ -248,7 +248,7 @@ const QuestionForm = ({ question, isEdit = false }: Params) => {
                 <span>Submitting</span>
               </>
             ) : (
-              <>{isEdit ? "Edit" : "Ask A Question"}</>
+              <>{isEdit ? "Edit" : "Ask a Question"}</>
             )}
           </Button>
         </div>
@@ -258,12 +258,3 @@ const QuestionForm = ({ question, isEdit = false }: Params) => {
 };
 
 export default QuestionForm;
-
-// NOTE: How USE FORM  Works
-// State Management: useForm manages the form state internally. You don’t need useState for each field.
-
-// Event Handling: The register function connects inputs to the form state without manual onChange handlers.
-
-// Submission: handleSubmit wraps your onSubmit function, passing the form data only if validation passes.
-
-// Validation: Built-in validation rules (e.g., required) are specified in register, and errors are available via formState.errors.
