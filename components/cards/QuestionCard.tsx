@@ -14,11 +14,12 @@ interface Props {
 const QuestionCard = ({
   question: { _id, title, tags, author, createdAt, upvotes, answers, views },
 }: Props) => {
+  console.log("🚀 ~ QuestionCard ~ author:", author);
   return (
     <div className="card-wrapper rounded-[10px] p-9 sm:px-11">
       <div className="flex flex-col-reverse items-start justify-between gap-5 sm:flex-row">
         <div>
-          <span className="subtle-regular text-dark400_light700 line-clamp-1 flex sm:hidden">
+          <span className="subtle-regular text-dark500_light700 line-clamp-1 flex sm:hidden">
             {getTimeStamp(createdAt)}
           </span>
           <Link href={ROUTES.QUESTION(_id)}>
@@ -35,12 +36,12 @@ const QuestionCard = ({
       </div>
       <div className=" flex-between mt-6 flex w-full flex-wrap gap-3">
         <Metric
-          imgUrl={author.image}
+          imgUrl={author?.image || "/images/avatar.png"}
           alt={author.name}
           value={author.name}
           title={`asked ${getTimeStamp(createdAt)}`}
           href={ROUTES.PROFILE(author._id)}
-          textStyles="body-medium text-dark400_light700"
+          textStyles="body-medium text-dark500_light700"
           isAuthor
         />
         <div className="flex items-center gap-3 max-sm:flex-wrap max-sm:justify-start">

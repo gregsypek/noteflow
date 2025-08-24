@@ -300,6 +300,7 @@ export async function getQuestions(
   }
 
   try {
+    // throw new Error("Test error"); // Example error for testing
     const totalQuestions = await Question.countDocuments(filterQuery);
 
     const questions = await Question.find(filterQuery)
