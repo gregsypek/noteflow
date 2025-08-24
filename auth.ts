@@ -25,20 +25,20 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const validatedFields = SignInSchema.safeParse(credentials);
 
         if (validatedFields.success) {
-        const { email, password } = validatedFields.data;
-        // Pobierz konto na podstawie adresu email
+          const { email, password } = validatedFields.data;
+          // Pobierz konto na podstawie adresu email
           const { data: existingAccount } = (await api.accounts.getByProvider(
             email
           )) as ActionResponse<IAccountDoc>;
 
           if (!existingAccount) return null;
-        // Pobierz dane użytkownika powiązanego z kontem
+          // Pobierz dane użytkownika powiązanego z kontem
           const { data: existingUser } = (await api.users.getById(
             existingAccount.userId.toString()
           )) as ActionResponse<IUserDoc>;
 
           if (!existingUser) return null;
-        // Weryfikacja hasła
+          // Weryfikacja hasła
           const isValidPassword = await bcrypt.compare(
             password,
             existingAccount.password!
@@ -63,18 +63,19 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
      * Modyfikuje obiekt sesji, dodając ID użytkownika z tokenu JWT.
      * @param params - Obiekt zawierający sesję i token.
      * @returns Zmodyfikowany obiekt sesji.
-     */async session({ session, token }) {
+     */
+    async session({ session, token }) {
       session.user.id = token.sub as string;
       return session;
     },
-     /**
+    /**
      * Wzbogaca token JWT o dane użytkownika, np. ID z bazy danych.
      * @param params - Obiekt zawierający token i dane konta.
      * @returns Zmodyfikowany token JWT.
      */
     async jwt({ token, account }) {
-       if (account) {
-              // Pobierz konto na podstawie providera lub emaila (dla poświadczeń)
+      if (account) {
+        // Pobierz konto na podstawie providera lub emaila (dla poświadczeń)
 
         const { data: existingAccount, success } =
           (await api.accounts.getByProvider(
@@ -84,7 +85,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           )) as ActionResponse<IAccountDoc>;
 
         if (!success || !existingAccount) return token;
-      // Ustaw ID użytkownika w polu 'sub' tokenu
+        // Ustaw ID użytkownika w polu 'sub' tokenu
         const userId = existingAccount.userId;
 
         if (userId) token.sub = userId.toString();
@@ -97,7 +98,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
      * Obsługuje logowanie za pomocą OAuth lub poświadczeń.
      * @param params - Obiekt zawierający dane użytkownika, profil i konto.
      * @returns True, jeśli logowanie się powiodło, false w przeciwnym razie.
-     */    async signIn({ user, profile, account }) {
+     */
+
+    async signIn({ user, profile, account }) {
       // Logowanie za pomocą poświadczeń jest obsługiwane w authorize
       if (account?.type === "credentials") return true;
       if (!account || !user) return false;
