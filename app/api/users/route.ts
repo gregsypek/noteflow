@@ -10,6 +10,7 @@ export async function GET() {
   try {
     await dbConnect();
     const users = await User.find();
+    console.log("🚀 ~ GET ~ users:", users);
 
     // https://nextjs.org/docs/app/api-reference/functions/next-response
     return NextResponse.json({ success: true, data: users }, { status: 200 });
@@ -25,6 +26,10 @@ export async function POST(request: Request) {
     const body = await request.json();
 
     const validatedData = UserSchema.safeParse(body);
+
+    // type SafeParseReturnType<T> =
+    // | { success: true; data: T }
+    // | { success: false; error: ZodError };
 
     if (!validatedData.success) {
       throw new ValidationError(validatedData.error.flatten().fieldErrors);

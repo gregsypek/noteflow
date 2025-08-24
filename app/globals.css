@@ -106,8 +106,8 @@ body {
     @apply text-dark-400 dark:text-light-900 !important;
   }
 
-  .text-light400_light500 {
-    @apply text-light-400 dark:text-light-500 !important;
+  .text-light500_light500 {
+    @apply text-light-500 dark:text-light-500 !important;
   }
 
   .light-border {
@@ -215,7 +215,8 @@ body {
   }
 
   .primary-gradient {
-    background: linear-gradient(129deg, #025994 0%, #0c6eb0 100%);
+    /* background: linear-gradient(129deg, #025994 0%, #0c6eb0 100%); */
+    background: linear-gradient(129deg, #3e4aa1 0%, #5061bb 100%);
   }
 
   .dark-gradient {
