@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 import React from "react";
 
 import TagCard from "@/components/cards/TagCard";
@@ -7,8 +8,10 @@ import Preview from "@/components/editor/Preview";
 import Metric from "@/components/Metric";
 import UserAvatar from "@/components/UserAvatar";
 import ROUTES from "@/constants/routes";
-import { getQuestion } from "@/lib/actions/question.action";
+import { getQuestion, incrementViews } from "@/lib/actions/question.action";
 import { formatNumber, getTimeStamp } from "@/lib/utils";
+
+import View from "../view";
 
 // const sampleQuestion = {
 //   id: "q123",
@@ -93,6 +96,12 @@ import { formatNumber, getTimeStamp } from "@/lib/utils";
 
 const QuestionDetails = async ({ params }: RouteParams) => {
   const { id } = await params;
+
+  after(async () => {
+    await incrementViews({ questionId: id });
+  });
+  // NOTE: after is used to run the incrementViews function after the component is rendered
+
   const { success, data: question } = await getQuestion({
     questionId: id,
   });
