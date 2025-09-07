@@ -1,3 +1,4 @@
+import { Question } from "@/database/question.model";
 interface SignInWithOAuthParams {
   provider: "github" | "google";
   providerAccountId: string;
@@ -35,4 +36,9 @@ interface GetTagQuestionsParams extends Omit<PaginatedSearchParams, "filter"> {
 
 interface IncrementViewsParams {
   questionId: string;
+}
+
+interface CreateAnswerParams {
+  questionId: string;
+  content: string;
 }

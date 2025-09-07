@@ -5,7 +5,7 @@ import { MDXEditorMethods } from "@mdxeditor/editor";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import dynamic from "next/dynamic";
 import Image from "next/image";
-import { useRef, useState } from "react";
+import { useRef, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -17,6 +17,8 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
+import { toast } from "@/hooks/use-toast";
+import { createAnswer } from "@/lib/actions/answer.action";
 import { AnswerSchema } from "@/lib/validations";
 
 const Editor = dynamic(() => import("@/components/editor"), {
@@ -24,8 +26,9 @@ const Editor = dynamic(() => import("@/components/editor"), {
 });
 // We use "ssr:false" to load the component only on the client side, preventing server-side rendering issues.
 
-const AnswerForm = () => {
-  const [isSubmitting, setIsSubmitting] = useState(false);
+const AnswerForm = ({ questionId }: { questionId: string }) => {
+  const [isAnswering, startAnsweringTransition] = useTransition();
+  // NOTE: We use useTransition to manage the pending state of the form submission. It's better than useState for this purpose because it allows React to prioritize updates. It's more efficient for UI updates.
   const [isAISubmitting, setIsAISubmitting] = useState(false);
 
   const editorRef = useRef<MDXEditorMethods>(null);
@@ -36,9 +39,30 @@ const AnswerForm = () => {
   });
 
   const handleSubmit = async (values: z.infer<typeof AnswerSchema>) => {
-    console.log("🚀 ~ handleSubmit ~ values:", values);
-  };
+    startAnsweringTransition(async () => {
+      const result = await createAnswer({
+        questionId,
+        content: values.content,
+      });
 
+      if (result.success) {
+        form.reset();
+        // editorRef.current?.clear();
+
+        toast({
+          title: "Success",
+          description: "Your answer has been posted.",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description:
+            result.error?.message || "Something went wrong. Please try again.",
+          variant: "destructive",
+        });
+      }
+    });
+  };
   return (
     <div>
       <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center sm:gap-2">
@@ -91,9 +115,9 @@ const AnswerForm = () => {
           />
           <div className="flex justify-end">
             <Button type="submit" className="primary-gradient w-fit">
-              {isSubmitting ? (
+              {isAnswering ? (
                 <>
-                  <ReloadIcon className="mr-2 size-4 animate-spin" />
+                  <ReloadIcon className="mr-2 size-4 animate-spin" /> Posting...
                 </>
               ) : (
                 "Post Answer"
