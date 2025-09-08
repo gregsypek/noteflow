@@ -37,13 +37,17 @@ export const EMPTY_TAGS = {
     href: ROUTES.TAGS,
   },
 };
+export const EMPTY_ANSWERS = {
+  title: "No Answers Found",
+  message: "The answer section is empty. Be the first to answer this question.",
+  button: {
+    text: "Answer",
+    href: ROUTES.TAGS,
+  },
+};
 
 export const EMPTY_COLLECTIONS = {
   title: "Collections Are Empty",
   message:
     "Looks like you haven’t created any collections yet. Start curating something extraordinary today",
-  button: {
-    text: "Save to Collection",
-    href: ROUTES.COLLECTION,
-  },
 };
