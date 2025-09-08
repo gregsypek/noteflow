@@ -5,6 +5,7 @@ import { MDXEditorMethods } from "@mdxeditor/editor";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import dynamic from "next/dynamic";
 import Image from "next/image";
+import { useSession } from "next-auth/react";
 import { useRef, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -19,6 +20,7 @@ import {
 } from "@/components/ui/form";
 import { toast } from "@/hooks/use-toast";
 import { createAnswer } from "@/lib/actions/answer.action";
+import { api } from "@/lib/api";
 import { AnswerSchema } from "@/lib/validations";
 
 const Editor = dynamic(() => import("@/components/editor"), {
@@ -26,13 +28,20 @@ const Editor = dynamic(() => import("@/components/editor"), {
 });
 // We use "ssr:false" to load the component only on the client side, preventing server-side rendering issues.
 
-const AnswerForm = ({ questionId }: { questionId: string }) => {
+interface Props {
+  questionId: string;
+  questionTitle: string;
+  questionContent: string;
+}
+
+const AnswerForm = ({ questionId, questionTitle, questionContent }: Props) => {
   const [isAnswering, startAnsweringTransition] = useTransition();
   // NOTE: We use useTransition to manage the pending state of the form submission. It's better than useState for this purpose because it allows React to prioritize updates. It's more efficient for UI updates.
   const [isAISubmitting, setIsAISubmitting] = useState(false);
 
   const editorRef = useRef<MDXEditorMethods>(null);
 
+  const session = useSession();
   const form = useForm<z.infer<typeof AnswerSchema>>({
     resolver: zodResolver(AnswerSchema),
     defaultValues: { content: "" },
@@ -53,6 +62,10 @@ const AnswerForm = ({ questionId }: { questionId: string }) => {
           title: "Success",
           description: "Your answer has been posted.",
         });
+
+        if (editorRef.current) {
+          editorRef.current.setMarkdown("");
+        }
       } else {
         toast({
           title: "Error",
@@ -63,6 +76,58 @@ const AnswerForm = ({ questionId }: { questionId: string }) => {
       }
     });
   };
+
+  const generateAIAnswer = async () => {
+    if (session.status !== "authenticated") {
+      return toast({
+        title: "Authentication required",
+        description: "Please sign in to generate an AI answer.",
+        variant: "destructive",
+      });
+    }
+    setIsAISubmitting(true);
+
+    try {
+      const { success, data, error } = await api.ai.getAnswer(
+        questionTitle,
+        questionContent
+      );
+
+      if (!success) {
+        return toast({
+          title: "Error",
+          description:
+            error?.message || "Failed to generate AI answer. Please try again.",
+          variant: "destructive",
+        });
+      }
+
+      const formattedAnswer = data.replace(/<br>/g, " ").toString().trim();
+
+      if (editorRef.current) {
+        editorRef.current.setMarkdown(formattedAnswer);
+        form.setValue("content", formattedAnswer);
+        form.trigger("content");
+      }
+
+      toast({
+        title: "Success",
+        description: "AI generated answer has been added to the editor.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Failed to generate AI answer. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsAISubmitting(false);
+    }
+  };
+
   return (
     <div>
       <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center sm:gap-2">
@@ -72,6 +137,7 @@ const AnswerForm = ({ questionId }: { questionId: string }) => {
         <Button
           className="btn light-border-2 gap-1.5 rounded-md border px-4 py-2.5 text-primary-500 shadow-none dark:text-primary-500"
           disabled={isAISubmitting}
+          onClick={generateAIAnswer}
         >
           {isAISubmitting ? (
             <>
