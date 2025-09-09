@@ -38,13 +38,15 @@ const AnswerForm = ({ questionId, questionTitle, questionContent }: Props) => {
   const [isAnswering, startAnsweringTransition] = useTransition();
   // NOTE: We use useTransition to manage the pending state of the form submission. It's better than useState for this purpose because it allows React to prioritize updates. It's more efficient for UI updates.
   const [isAISubmitting, setIsAISubmitting] = useState(false);
-
-  const editorRef = useRef<MDXEditorMethods>(null);
-
   const session = useSession();
+
+  const ref = useRef<MDXEditorMethods>(null);
+
   const form = useForm<z.infer<typeof AnswerSchema>>({
     resolver: zodResolver(AnswerSchema),
-    defaultValues: { content: "" },
+    defaultValues: {
+      content: "",
+    },
   });
 
   const handleSubmit = async (values: z.infer<typeof AnswerSchema>) => {
@@ -56,21 +58,19 @@ const AnswerForm = ({ questionId, questionTitle, questionContent }: Props) => {
 
       if (result.success) {
         form.reset();
-        // editorRef.current?.clear();
 
         toast({
           title: "Success",
-          description: "Your answer has been posted.",
+          description: "Your answer has been posted successfully",
         });
 
-        if (editorRef.current) {
-          editorRef.current.setMarkdown("");
+        if (ref.current) {
+          ref.current.setMarkdown("");
         }
       } else {
         toast({
           title: "Error",
-          description:
-            result.error?.message || "Something went wrong. Please try again.",
+          description: result.error?.message,
           variant: "destructive",
         });
       }
@@ -80,11 +80,12 @@ const AnswerForm = ({ questionId, questionTitle, questionContent }: Props) => {
   const generateAIAnswer = async () => {
     if (session.status !== "authenticated") {
       return toast({
-        title: "Authentication required",
-        description: "Please sign in to generate an AI answer.",
+        title: "Please log in",
+        description: "You need to be logged in to use this feature",
         variant: "destructive",
       });
     }
+
     setIsAISubmitting(true);
 
     try {
@@ -96,23 +97,30 @@ const AnswerForm = ({ questionId, questionTitle, questionContent }: Props) => {
       if (!success) {
         return toast({
           title: "Error",
-          description:
-            error?.message || "Failed to generate AI answer. Please try again.",
+          description: error?.message,
           variant: "destructive",
         });
       }
 
-      const formattedAnswer = data.replace(/<br>/g, " ").toString().trim();
+      // const formattedAnswer = data.replace(/<br>/g, " ").toString().trim();
+      const formattedAnswer = data
+        .replace(/<br>/g, " ") // usuń br
+        // popraw złe zamknięcia code blocków (```js zamiast ```)
+        .replace(/```js\s*$/gm, "```")
+        // upewnij się, że każde otwarcie code blocka ma js
+        .replace(/```(?!js)/g, "```js")
+        .trim();
 
-      if (editorRef.current) {
-        editorRef.current.setMarkdown(formattedAnswer);
+      if (ref.current) {
+        ref.current.setMarkdown(formattedAnswer);
+
         form.setValue("content", formattedAnswer);
         form.trigger("content");
       }
 
       toast({
         title: "Success",
-        description: "AI generated answer has been added to the editor.",
+        description: "AI generated answer has been generated",
       });
     } catch (error) {
       toast({
@@ -120,7 +128,7 @@ const AnswerForm = ({ questionId, questionTitle, questionContent }: Props) => {
         description:
           error instanceof Error
             ? error.message
-            : "Failed to generate AI answer. Please try again.",
+            : "There was a problem with your request",
         variant: "destructive",
       });
     } finally {
@@ -148,7 +156,7 @@ const AnswerForm = ({ questionId, questionTitle, questionContent }: Props) => {
             <>
               <Image
                 src="/icons/stars.svg"
-                alt="Generate Ai Answer"
+                alt="Generate AI Answer"
                 width={12}
                 height={12}
                 className="object-contain"
@@ -171,7 +179,7 @@ const AnswerForm = ({ questionId, questionTitle, questionContent }: Props) => {
                 <FormControl>
                   <Editor
                     value={field.value}
-                    editorRef={editorRef}
+                    ref={ref}
                     fieldChange={field.onChange}
                   />
                 </FormControl>
@@ -179,11 +187,13 @@ const AnswerForm = ({ questionId, questionTitle, questionContent }: Props) => {
               </FormItem>
             )}
           />
+
           <div className="flex justify-end">
             <Button type="submit" className="primary-gradient w-fit">
               {isAnswering ? (
                 <>
-                  <ReloadIcon className="mr-2 size-4 animate-spin" /> Posting...
+                  <ReloadIcon className="mr-2 size-4 animate-spin" />
+                  Posting...
                 </>
               ) : (
                 "Post Answer"
