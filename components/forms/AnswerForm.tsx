@@ -87,29 +87,32 @@ const AnswerForm = ({ questionId, questionTitle, questionContent }: Props) => {
     }
 
     setIsAISubmitting(true);
+    const userAnswer = ref.current?.getMarkdown();
 
     try {
       const { success, data, error } = await api.ai.getAnswer(
         questionTitle,
-        questionContent
+        questionContent,
+        userAnswer
       );
 
       if (!success) {
         return toast({
           title: "Error",
-          description: error?.message,
+          description:
+            error?.message || "Failed to generate AI answer. Please try again.",
           variant: "destructive",
         });
       }
 
-      // const formattedAnswer = data.replace(/<br>/g, " ").toString().trim();
-      const formattedAnswer = data
-        .replace(/<br>/g, " ") // usuń br
-        // popraw złe zamknięcia code blocków (```js zamiast ```)
-        .replace(/```js\s*$/gm, "```")
-        // upewnij się, że każde otwarcie code blocka ma js
-        .replace(/```(?!js)/g, "```js")
-        .trim();
+      const formattedAnswer = data.replace(/<br>/g, " ").toString().trim();
+      // const formattedAnswer = data
+      //   .replace(/<br>/g, " ") // usuń br
+      //   // popraw złe zamknięcia code blocków (```js zamiast ```)
+      //   .replace(/```js\s*$/gm, "```")
+      //   // upewnij się, że każde otwarcie code blocka ma js
+      //   .replace(/```(?!js)/g, "```js")
+      //   .trim();
 
       if (ref.current) {
         ref.current.setMarkdown(formattedAnswer);
@@ -128,7 +131,7 @@ const AnswerForm = ({ questionId, questionTitle, questionContent }: Props) => {
         description:
           error instanceof Error
             ? error.message
-            : "There was a problem with your request",
+            : "Failed to generate AI answer. Please try again.",
         variant: "destructive",
       });
     } finally {
