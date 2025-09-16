@@ -22,6 +22,7 @@ const UserAvatar = ({
   fallbackClassName,
   className = "h-9 w-9",
 }: Props) => {
+  console.log("🚀 ~ UserAvatar ~ name:", name);
   const initials = name
     .split(" ")
     .map((word: string) => word[0])
@@ -31,13 +32,13 @@ const UserAvatar = ({
 
   return (
     <Link href={ROUTES.PROFILE(id)}>
-      <Avatar className={`relative overflow-hidden ${className}`}>
+      <Avatar className={cn("relative", className)}>
         {imageUrl ? (
           <Image
             src={imageUrl}
             alt={name}
             fill
-            className="rounded-full object-cover"
+            className="object-cover"
             quality={100}
             unoptimized
           />

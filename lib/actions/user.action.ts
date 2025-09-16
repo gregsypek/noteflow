@@ -11,14 +11,15 @@ import { PaginatedSearchParamsSchema } from "../validations";
 export async function getUsers(
   params: PaginatedSearchParams
 ): Promise<ActionResponse<{ users: User[]; isNext: boolean }>> {
-  const validatioResult = await action({
+  const validationResult = await action({
     params,
     schema: PaginatedSearchParamsSchema,
   });
 
-  if (validatioResult instanceof Error) {
-    return handleError(validatioResult) as ErrorResponse;
+  if (validationResult instanceof Error) {
+    return handleError(validationResult) as ErrorResponse;
   }
+
   const { page = 1, pageSize = 10, query, filter } = params;
 
   const skip = (Number(page) - 1) * pageSize;
@@ -34,6 +35,7 @@ export async function getUsers(
   }
 
   let sortCriteria = {};
+
   switch (filter) {
     case "newest":
       sortCriteria = { createdAt: -1 };
@@ -51,17 +53,20 @@ export async function getUsers(
 
   try {
     const totalUsers = await User.countDocuments(filterQuery);
+
     const users = await User.find(filterQuery)
       .sort(sortCriteria)
       .skip(skip)
       .limit(limit);
 
     const isNext = totalUsers > skip + users.length;
-    // Check if there are more users beyond the current page
 
     return {
       success: true,
-      data: { users: JSON.parse(JSON.stringify(users)), isNext },
+      data: {
+        users: JSON.parse(JSON.stringify(users)),
+        isNext,
+      },
     };
   } catch (error) {
     return handleError(error) as ErrorResponse;
