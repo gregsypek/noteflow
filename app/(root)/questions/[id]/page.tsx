@@ -8,6 +8,7 @@ import TagCard from "@/components/cards/TagCard";
 import Preview from "@/components/editor/Preview";
 import AnswerForm from "@/components/forms/AnswerForm";
 import Metric from "@/components/Metric";
+import SaveQuestion from "@/components/questions/SaveQuestion";
 import UserAvatar from "@/components/UserAvatar";
 import Votes from "@/components/votes/Votes";
 import ROUTES from "@/constants/routes";
@@ -75,6 +76,9 @@ const QuestionDetails = async ({ params }: RouteParams) => {
                 targetType="question"
               />
             </Suspense>
+
+            <Suspense fallback={<div>Loading...</div>}></Suspense>
+            <SaveQuestion questionId={question._id} />
           </div>
         </div>
 
