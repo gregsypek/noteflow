@@ -196,7 +196,7 @@ export async function getSavedQuestions(
     pipeline.push({ $project: { question: 1, author: 1 } }); // Select only the fields we need to reduce the amount of data transferred. 1 means include the field, 0 means exclude the field.
 
     const questions = await Collection.aggregate(pipeline);
-    const isNext = totalCount.count > skip + questions.length;
+    const isNext = totalCount?.count > skip + questions.length;
 
     return {
       success: true,
