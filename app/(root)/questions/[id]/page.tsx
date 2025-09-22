@@ -24,11 +24,6 @@ const QuestionDetails = async ({ params }: RouteParams) => {
     questionId: id,
   });
 
-  after(async () => {
-    await incrementViews({ questionId: id });
-  });
-  // NOTE: after is used to run the incrementViews function after the component is rendered
-
   if (!success || !question) return redirect("/404");
 
   const {
@@ -49,6 +44,17 @@ const QuestionDetails = async ({ params }: RouteParams) => {
 
   const hasSavedQuestionPromise = hasSavedQuestion({
     questionId: question._id,
+  });
+
+  // NOTE: after is used to run the incrementViews function after the component is rendered
+  // Increment views after getting all data (this should be fine with after)
+
+  after(async () => {
+    try {
+      await incrementViews({ questionId: id });
+    } catch (error) {
+      console.error("Failed to increment views:", error);
+    }
   });
 
   const { author, createdAt, answers, views, tags, content, title } = question;

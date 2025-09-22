@@ -11,6 +11,8 @@ import { EMPTY_QUESTION } from "@/constants/states";
 import { getQuestions } from "@/lib/actions/question.action";
 import { api } from "@/lib/api";
 import handleError from "@/lib/handlers/error";
+import CommonFilter from "@/components/filters/CommonFilter";
+import { HomePageFilters } from "@/constants/filters";
 
 // const notes = [
 //   {
@@ -110,12 +112,17 @@ const Home = async ({ searchParams }: SearchParams) => {
           <Link href={ROUTES.ASK_QUESTION}>Make a Note</Link>
         </Button>
       </section>
-      <section className="mt-11">
+      <section className="mt-11 flex justify-between gap-5 max-sm:flex-col sm:items-center">
         <LocalSearch
           route="/"
           imgSrc="/icons/search.svg"
           placeholder="Search notes..."
           otherClasses="flex-1"
+        />
+        <CommonFilter
+          filters={HomePageFilters}
+          otherClasses="min-h-[56px] sm:min-w-[170px]"
+          containerClasses="hidden max-md:flex bg-auto"
         />
       </section>
 
