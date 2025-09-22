@@ -13,6 +13,7 @@ import { api } from "@/lib/api";
 import handleError from "@/lib/handlers/error";
 import CommonFilter from "@/components/filters/CommonFilter";
 import { HomePageFilters } from "@/constants/filters";
+import Pagination from "@/components/Pagination";
 
 // const notes = [
 //   {
@@ -80,7 +81,7 @@ const Home = async ({ searchParams }: SearchParams) => {
 
   const { success, data, error } = await getQuestions({
     page: Number(page) || 1,
-    pageSize: Number(pageSize) || 10,
+    pageSize: Number(pageSize) || 2,
     query: query || "",
     filter: filter || "",
   });
@@ -89,7 +90,7 @@ const Home = async ({ searchParams }: SearchParams) => {
   // const result = await auth();
   // console.log("🚀 ~ Home ~ result:", result);
 
-  const { questions } = data || {};
+  const { questions, isNext } = data || {};
   // const filteredNotes = questions.filter((note) => {
   //   const matchesQuery = note.title
   //     .toLowerCase()
@@ -140,6 +141,7 @@ const Home = async ({ searchParams }: SearchParams) => {
           </div>
         )}
       />
+      <Pagination page={page} isNext={isNext || false} />
     </>
   );
 };
