@@ -7,6 +7,7 @@ import { User } from "@/database";
 import action from "../handlers/action";
 import handleError from "../handlers/error";
 import { PaginatedSearchParamsSchema } from "../validations";
+import { DEFAULT_PAGE_SIZE } from "@/constants";
 
 export async function getUsers(
   params: PaginatedSearchParams
@@ -20,7 +21,7 @@ export async function getUsers(
     return handleError(validationResult) as ErrorResponse;
   }
 
-  const { page = 1, pageSize = 10, query, filter } = params;
+  const { page = 1, pageSize = DEFAULT_PAGE_SIZE, query, filter } = params;
 
   const skip = (Number(page) - 1) * pageSize;
   const limit = pageSize;

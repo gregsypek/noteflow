@@ -8,6 +8,7 @@ import {
 } from "./../validations";
 import action from "../handlers/action";
 import handleError from "../handlers/error";
+import { DEFAULT_PAGE_SIZE } from "@/constants";
 
 export const getTags = async (
   params: PaginatedSearchParams
@@ -20,7 +21,7 @@ export const getTags = async (
   if (validationResult instanceof Error) {
     return handleError(validationResult) as ErrorResponse;
   }
-  const { page = 1, pageSize = 10, query, filter } = params;
+  const { page = 1, pageSize = DEFAULT_PAGE_SIZE, query, filter } = params;
   const skip = (Number(page) - 1) * pageSize;
   const limit = Number(pageSize);
 
@@ -80,7 +81,7 @@ export const getTagQuestions = async (
   if (validationResult instanceof Error) {
     return handleError(validationResult) as ErrorResponse;
   }
-  const { tagId, page = 1, pageSize = 10, query } = params;
+  const { tagId, page = 1, pageSize = DEFAULT_PAGE_SIZE, query } = params;
   const skip = (Number(page) - 1) * pageSize;
   const limit = Number(pageSize);
 

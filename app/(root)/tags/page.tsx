@@ -9,12 +9,13 @@ import { getTags } from "@/lib/actions/tag.action";
 import CommonFilter from "@/components/filters/CommonFilter";
 import { TagFilters } from "@/constants/filters";
 import Pagination from "@/components/Pagination";
+import { DEFAULT_PAGE_SIZE } from "@/constants";
 
 const Tags = async ({ searchParams }: RouteParams) => {
   const { page, pageSize, query, filter } = await searchParams;
   const { success, data, error } = await getTags({
     page: Number(page) || 1,
-    pageSize: Number(pageSize) || 10,
+    pageSize: Number(pageSize) || DEFAULT_PAGE_SIZE,
     query,
     filter,
   });

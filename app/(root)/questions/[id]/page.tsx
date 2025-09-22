@@ -17,6 +17,7 @@ import { hasSavedQuestion } from "@/lib/actions/collection.action";
 import { getQuestion, incrementViews } from "@/lib/actions/question.action";
 import { hasVoted } from "@/lib/actions/vote.action";
 import { formatNumber, getTimeStamp } from "@/lib/utils";
+import { DEFAULT_PAGE_SIZE } from "@/constants";
 
 const QuestionDetails = async ({ params, searchParams }: RouteParams) => {
   const { page, pageSize, query, filter } = await searchParams;
@@ -35,7 +36,7 @@ const QuestionDetails = async ({ params, searchParams }: RouteParams) => {
   } = await getAnswers({
     questionId: id,
     page: Number(page) || 1,
-    pageSize: Number(pageSize) || 2,
+    pageSize: Number(pageSize) || DEFAULT_PAGE_SIZE,
     filter,
   });
 

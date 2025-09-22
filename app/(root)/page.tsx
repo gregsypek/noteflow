@@ -14,6 +14,7 @@ import handleError from "@/lib/handlers/error";
 import CommonFilter from "@/components/filters/CommonFilter";
 import { HomePageFilters } from "@/constants/filters";
 import Pagination from "@/components/Pagination";
+import { DEFAULT_PAGE_SIZE } from "@/constants";
 
 // const notes = [
 //   {
@@ -81,7 +82,7 @@ const Home = async ({ searchParams }: SearchParams) => {
 
   const { success, data, error } = await getQuestions({
     page: Number(page) || 1,
-    pageSize: Number(pageSize) || 2,
+    pageSize: Number(pageSize) || DEFAULT_PAGE_SIZE,
     query: query || "",
     filter: filter || "",
   });

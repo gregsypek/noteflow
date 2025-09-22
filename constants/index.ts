@@ -35,3 +35,5 @@ export const sidebarLinks = [
     label: "Ask a question",
   },
 ];
+
+export const DEFAULT_PAGE_SIZE = 3;

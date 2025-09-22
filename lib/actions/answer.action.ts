@@ -10,6 +10,7 @@ import Answer, { IAnswerDoc } from "@/database/answer.model";
 import action from "../handlers/action";
 import handleError from "../handlers/error";
 import { AnswerServerSchema, GetAnswersSchema } from "../validations";
+import { DEFAULT_PAGE_SIZE } from "@/constants";
 
 export async function createAnswer(
   params: CreateAnswerParams
@@ -78,7 +79,7 @@ export async function getAnswers(params: GetAnswersParams): Promise<
   if (validationResult instanceof Error) {
     return handleError(validationResult) as ErrorResponse;
   }
-  const { questionId, page = 1, pageSize = 10, filter } = params;
+  const { questionId, page = 1, pageSize = DEFAULT_PAGE_SIZE, filter } = params;
 
   const skip = (Number(page) - 1) * pageSize;
   const limit = pageSize;
