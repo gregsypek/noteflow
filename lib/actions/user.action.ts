@@ -1,6 +1,6 @@
 "use server";
 
-import { FilterQuery } from "mongoose";
+import { FilterQuery, PipelineStage, Types } from "mongoose";
 
 import { Answer, Question, User } from "@/database";
 
@@ -190,6 +190,77 @@ export async function getUserAnswers(params: GetUserAnswersParams): Promise<
       data: {
         answers: JSON.parse(JSON.stringify(answers)),
         isNext,
+      },
+    };
+  } catch (error) {
+    return handleError(error) as ErrorResponse;
+  }
+}
+
+export async function getUserTopTags(params: GetUserTagsParams): Promise<
+  ActionResponse<{
+    tags: { _id: string; name: string; count: number }[];
+  }>
+> {
+  const validationResult = await action({
+    params,
+    schema: GetUserSchema,
+  });
+
+  if (validationResult instanceof Error) {
+    return handleError(validationResult) as ErrorResponse;
+  }
+
+  const { userId } = params;
+
+  try {
+    // NOTE: Whe use pipeline here because we need to join multiple collections and do some aggregations
+    const pipeline: PipelineStage[] = [
+      { $match: { author: new Types.ObjectId(userId) } },
+      { $unwind: "$tags" }, // unwind tags array to de-normalize means each tag will be in separate document
+      {
+        $group: {
+          _id: "$tags",
+          count: { $sum: 1 }, // count how many times each tag appears
+        },
+      },
+      {
+        $lookup: {
+          // lookup is like join in SQL
+          from: "tags", // join with tags collection
+          localField: "_id",
+          foreignField: "_id",
+          as: "tagInfo",
+        },
+      },
+      { $unwind: "$tagInfo" }, // unwind tagInfo array to de-normalize
+      { $sort: { count: -1 } },
+      { $limit: 10 },
+      {
+        $project: {
+          // project is like select in SQL
+          _id: "$tagInfo._id",
+          name: "$tagInfo.name",
+          count: 1,
+        },
+      },
+    ];
+
+    // Mongo pipeline:
+    // $match – wybierz pytania konkretnego autora
+    // $unwind tags – rozbij tablicę tags na osobne rekordy
+    // $group by tag_id – policz wystąpienia tagów
+    // $lookup tags – dołącz dane z tabeli tags
+    // $sort i $limit – posortuj po ilości i weź 10 najczęstszych
+    // $project – wybierz tylko id, name, count
+
+    const tags = await Question.aggregate(pipeline);
+    console.log("🚀 ~ getUserTopTags ~ tags:", tags);
+
+    return {
+      success: true,
+      data: {
+        tags: JSON.parse(JSON.stringify(tags)),
       },
     };
   } catch (error) {
