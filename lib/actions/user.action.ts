@@ -255,7 +255,7 @@ export async function getUserTopTags(params: GetUserTagsParams): Promise<
     // $project – wybierz tylko id, name, count
 
     const tags = await Question.aggregate(pipeline);
-    console.log("🚀 ~ getUserTopTags ~ tags:", tags);
+    // console.log("🚀 ~ getUserTopTags ~ tags:", tags);
 
     return {
       success: true,

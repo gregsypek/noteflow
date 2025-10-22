@@ -4,12 +4,16 @@ import mongoose from "mongoose";
 import { revalidatePath } from "next/cache";
 
 import ROUTES from "@/constants/routes";
-import { Question } from "@/database";
+import { Question, Vote } from "@/database";
 import Answer, { IAnswerDoc } from "@/database/answer.model";
 
 import action from "../handlers/action";
 import handleError from "../handlers/error";
-import { AnswerServerSchema, GetAnswersSchema } from "../validations";
+import {
+  AnswerServerSchema,
+  DeleteAnswerSchema,
+  GetAnswersSchema,
+} from "../validations";
 import { DEFAULT_PAGE_SIZE } from "@/constants";
 
 export async function createAnswer(
@@ -20,7 +24,7 @@ export async function createAnswer(
     schema: AnswerServerSchema,
     authorize: true,
   });
-  console.log("🚀 ~ createAnswer ~ validationResult:", validationResult);
+  // console.log("🚀 ~ createAnswer ~ validationResult:", validationResult);
 
   if (validationResult instanceof Error) {
     return handleError(validationResult) as ErrorResponse;
@@ -122,5 +126,79 @@ export async function getAnswers(params: GetAnswersParams): Promise<
     };
   } catch (error) {
     return handleError(error as Error) as ErrorResponse;
+  }
+}
+
+export async function deleteAnswer(
+  params: DeleteAnswerParams
+): Promise<ActionResponse> {
+  const validationResult = await action({
+    params,
+    schema: DeleteAnswerSchema,
+    authorize: true,
+  });
+
+  if (validationResult instanceof Error) {
+    return handleError(validationResult) as ErrorResponse;
+  }
+
+  const { answerId } = validationResult.params!;
+  console.log("🚀 ~ deleteAnswer ~ answerId:", answerId);
+  const { user } = validationResult.session!;
+  const session = await mongoose.startSession();
+
+  try {
+    // implement logic here
+    const answer = await Answer.findById(answerId).session(session);
+    // console.log("🚀 ~ deleteAnswer ~ answer:", answer);
+
+    //  deleteAnswer ~ answer: {
+    //   _id: new ObjectId('68f89d748f1780213688dcee'),
+    //   author: new ObjectId('68b4116f2fd8b12349839b8d'),
+    //   question: new ObjectId('68f89cfa8f1780213688dc97'),
+    //   content: '```jsx\n' +
+    //     'true },\n' +
+    //     '    content: { type: String, required: true },\n' +
+    //     '    tags: [{ type: Schema.Types.ObjectId, ref: "Tag" }],\n' +
+    //     '    views: { type: Number, default: 0 },\n' +
+    //     '    answers: { type: Number, default: 0 },\n' +
+    //     '    upvotes: { type: Number, default: 0 },\n' +
+    //     '    downvotes: { type: Number, default: 0 },\n' +
+    //     '    author: { type: Schema.Types.ObjectId, ref: "User", required: true },\n' +
+    //     '  },\n' +
+    //     '```',
+    //   upvotes: 0,
+    //   downvotes: 0,
+    //   createdAt: 2025-10-22T09:01:40.777Z,
+    //   updatedAt: 2025-10-22T09:01:40.777Z,
+    //   __v: 0
+    // }
+
+    if (!answer) {
+      throw new Error("Answer not found");
+    }
+
+    if (answer.author.toString() !== user?.id) {
+      throw new Error("Unauthorized to delete this answer");
+    }
+
+    // reduce the question answers count
+    await Question.findByIdAndUpdate(
+      answer.question, // what is answer.question type
+      { $inc: { answers: -1 } },
+      { new: true }
+    );
+
+    // delete votes associated with answer
+    await Vote.deleteMany({ actionId: answerId, actionType: "answer" });
+
+    // delete the answer
+    await Answer.findByIdAndDelete(answerId);
+
+    revalidatePath(`/profile/${user?.id}`);
+
+    return { success: true };
+  } catch (error) {
+    return handleError(error) as ErrorResponse;
   }
 }

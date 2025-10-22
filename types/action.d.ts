@@ -83,6 +83,9 @@ interface GetUserTagsParams {
   userId: string;
 }
 
-interface DeleteQuestionParams  {
+interface DeleteQuestionParams {
   questionId: string;
+}
+interface DeleteAnswerParams {
+  answerId: string;
 }

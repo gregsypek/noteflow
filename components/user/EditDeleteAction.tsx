@@ -12,6 +12,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "@/hooks/use-toast";
+import { deleteAnswer } from "@/lib/actions/answer.action";
 import { deleteQuestion } from "@/lib/actions/question.action";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -35,10 +36,12 @@ const EditDeleteAction = ({ type, itemId }: Props) => {
         description: "Your question has been deleted successfully.",
       });
     } else if (type === "Answer") {
-      // TODO: Implement delete answer here
+      await deleteAnswer({ answerId: itemId });
+
       toast({
-        title: "Answer deleted",
-        description: "Your answer has been deleted successfully.",
+        title: "Answer Deleted",
+        variant: "destructive",
+        description: "Your answer has been successfully deleted.",
       });
     }
   };
