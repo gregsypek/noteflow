@@ -20,6 +20,8 @@ import { DEFAULT_PAGE_SIZE } from "@/constants";
 import dbConnect from "../mongoose";
 import { Answer, Collection, Vote } from "@/database";
 import { revalidatePath } from "next/cache";
+import { createInteraction } from "./interaction.action";
+import { after } from "next/server";
 
 export async function createQuestion(
   params: CreateQuestionParams
@@ -75,6 +77,16 @@ export async function createQuestion(
       { session }
     );
 
+    // log the interaction
+    after(async () => {
+      await createInteraction({
+        action: "post",
+        actionId: question._id.toString(),
+        actionTarget: "question",
+        authorId: userId as string,
+      });
+    });
+
     await session.commitTransaction();
 
     return { success: true, data: JSON.parse(JSON.stringify(question)) };
@@ -82,7 +94,7 @@ export async function createQuestion(
     await session.abortTransaction();
     return handleError(error) as ErrorResponse;
   } finally {
-    session.endSession();
+    await session.endSession();
   }
 }
 
@@ -433,14 +445,14 @@ export async function deleteQuestion(
     // Commit transaction
     await session.commitTransaction();
     session.endSession();
-    
+
     // Revalidate to reflect immediate changes on UI
     revalidatePath(`/profile/${user?.id}`);
-    
+
     return { success: true };
   } catch (error) {
     await session.abortTransaction();
     session.endSession();
     return handleError(error) as ErrorResponse;
-  } 
+  }
 }

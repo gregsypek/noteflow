@@ -15,6 +15,8 @@ import {
   GetAnswersSchema,
 } from "../validations";
 import { DEFAULT_PAGE_SIZE } from "@/constants";
+import { createInteraction } from "./interaction.action";
+import { after } from "next/server";
 
 export async function createAnswer(
   params: CreateAnswerParams
@@ -53,7 +55,19 @@ export async function createAnswer(
 
     question.answers += 1;
     await question.save({ session });
+
+    // log the interaction
+    after(async () => {
+      await createInteraction({
+        action: "post",
+        actionId: newAnswer._id.toString(),
+        actionTarget: "answer",
+        authorId: userId as string,
+      });
+    });
+
     await session.commitTransaction();
+
     revalidatePath(ROUTES.QUESTION(questionId));
 
     return {
